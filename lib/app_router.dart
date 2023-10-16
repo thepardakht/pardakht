@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
-import 'package:pardakht/src/ui/screens/screen_auth.dart';
-import 'package:pardakht/src/ui/screens/screen_home.dart';
+import 'package:pardakht/src/views/screens/screen_auth.dart';
+import 'package:pardakht/src/views/screens/screen_home.dart';
 
 abstract class AppRouter {
   const AppRouter._();

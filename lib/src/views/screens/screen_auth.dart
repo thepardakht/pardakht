@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:pardakht/src/ui/components/button_authentication.dart';
-import 'package:pardakht/src/ui/sections/slider_app_info.dart';
+import 'package:pardakht/src/views/components/button_authentication.dart';
+import 'package:pardakht/src/views/sections/slider_app_info.dart';
 
 class ScreenAuthentication extends StatelessWidget {
   static const String path = "/authentication";
