@@ -25,54 +25,54 @@ extension AuthorizationStateStatusParser on AuthorizationStateStatus {
   }
 }
 
-class AuthorizationState {
+class PardakhtServerState {
   final oauth2.Client? client;
   final AuthorizationStateStatus status;
   final String? error;
-  AuthorizationState({
+  PardakhtServerState({
     required this.client,
     required this.error,
     required this.status,
   });
 
-  AuthorizationState.init({
+  PardakhtServerState.init({
     this.client,
     this.error,
     this.status = AuthorizationStateStatus.idle,
   });
 
-  AuthorizationState copyWith({
+  PardakhtServerState copyWith({
     AuthorizationStateStatus? status,
     String? error,
     oauth2.Client? client,
   }) {
-    return AuthorizationState(
+    return PardakhtServerState(
       status: status ?? this.status,
       error: error ?? this.error,
       client: client ?? this.client,
     );
   }
 
-  AuthorizationState idleState() {
+  PardakhtServerState idleState() {
     return copyWith(
       status: AuthorizationStateStatus.idle,
     );
   }
 
-  AuthorizationState fetchingState() {
+  PardakhtServerState fetchingState() {
     return copyWith(
       status: AuthorizationStateStatus.fetching,
     );
   }
 
-  AuthorizationState fetchedState({oauth2.Client? client}) {
+  PardakhtServerState fetchedState({oauth2.Client? client}) {
     return copyWith(
       status: AuthorizationStateStatus.fetched,
       client: client ?? this.client,
     );
   }
 
-  AuthorizationState failedFetchState(String? error) {
+  PardakhtServerState failedFetchState(String? error) {
     return copyWith(
       status: AuthorizationStateStatus.failedFetch,
       error: error,

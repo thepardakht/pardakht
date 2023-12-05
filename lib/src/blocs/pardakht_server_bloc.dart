@@ -1,10 +1,10 @@
 import 'dart:io';
 
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:pardakht/src/blocs/states/authorization_state.dart';
+import 'package:pardakht/src/blocs/states/%20pardakht_server_state.dart';
 import 'package:oauth2/oauth2.dart' as oauth2;
 
-class AuthorizationBloc extends Cubit<AuthorizationState> {
+class PardakhtServerBloc extends Cubit<PardakhtServerState> {
   final String authorizationEndpoint;
   final String tokenEndpoint;
   final String clientId;
@@ -12,7 +12,7 @@ class AuthorizationBloc extends Cubit<AuthorizationState> {
   final List<String>? scopes;
   final String redirectUrl;
   final File? credentialsFile;
-  AuthorizationBloc({
+  PardakhtServerBloc({
     required this.authorizationEndpoint,
     required this.tokenEndpoint,
     required this.clientId,
@@ -20,7 +20,7 @@ class AuthorizationBloc extends Cubit<AuthorizationState> {
     required this.redirectUrl,
     this.scopes,
     this.credentialsFile,
-  }) : super(AuthorizationState.init());
+  }) : super(PardakhtServerState.init());
 
   Future<void> authorize() async {
     emit(state.fetchingState());
