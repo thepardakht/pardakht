@@ -14,4 +14,6 @@ class AuthBloc extends Cubit<AuthState> {
   void signinWithGoogle() {}
 
   void signinWithApple() {}
+
+  void fetch() {}
 }
