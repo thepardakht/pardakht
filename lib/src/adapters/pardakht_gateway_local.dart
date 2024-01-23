@@ -68,4 +68,10 @@ class PardakhtGatewayLocal implements PardakhtGateway {
     // TODO: implement restoreUsers
     throw UnimplementedError();
   }
+
+  @override
+  Stream<User> authorize() {
+    // TODO: implement authorize
+    throw UnimplementedError();
+  }
 }

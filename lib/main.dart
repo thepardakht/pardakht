@@ -4,7 +4,9 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:kooza_flutter/kooza_flutter.dart';
+import 'package:pardakht/src/adapters/pardakht_gateway_cloud.dart';
 import 'package:pardakht/src/blocs/auth_bloc.dart';
+import 'package:pardakht/src/blocs/interfaces/pardakht_gateway.dart';
 import 'package:pardakht/src/blocs/states/auth_state.dart';
 import 'package:pardakht/theme.dart';
 
@@ -16,7 +18,7 @@ void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await EasyLocalization.ensureInitialized();
   final prefs = await Kooza.getInstance("pardakht_local");
-  final gateway = PardakhtGatewayLocal(prefs);
+  final gateway = PardakhtGatewayCloud();
 
   runApp(
     DevicePreview(
@@ -48,11 +50,11 @@ class AppGeneralSetup extends StatelessWidget {
     );
     return BlocBuilder<AuthBloc, AuthState>(
       buildWhen: (previous, current) {
-        return previous.isSignedIn != current.isSignedIn;
+        return previous.isAuthorized != current.isAuthorized;
       },
       builder: (context, state) {
         final router = AppRouter.build(
-          isSignedIn: state.isSignedIn,
+          isSignedIn: state.isAuthorized ?? false,
           routes: AppRoutes.routes,
           paths: AppRoutes.paths,
           publicPaths: AppRoutes.publicPaths,

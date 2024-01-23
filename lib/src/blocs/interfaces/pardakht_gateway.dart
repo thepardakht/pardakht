@@ -1,6 +1,7 @@
 import '../../domain/entities/user.dart';
 
 abstract class PardakhtGateway {
+  Stream<User> authorize();
   Future<void> createUser(User user);
   Stream<User> fetchUser(String userID);
   Stream<List<User>> fetchUsers(dynamic request);

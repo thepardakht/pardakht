@@ -1,7 +1,13 @@
+import 'dart:convert';
+import 'dart:io';
+
 import 'package:pardakht/src/blocs/interfaces/pardakht_gateway.dart';
 import 'package:pardakht/src/domain/entities/user.dart';
 
-class PardakhtGatewayPostgreSql implements PardakhtGateway {
+import 'package:http/http.dart' as http;
+import 'package:url_launcher/url_launcher.dart';
+
+class PardakhtGatewayCloud implements PardakhtGateway {
   @override
   Future<void> backUpUsers(request) {
     // TODO: implement backUpUsers
@@ -60,5 +66,51 @@ class PardakhtGatewayPostgreSql implements PardakhtGateway {
   Future<List<User>> restoreUsers(request) {
     // TODO: implement restoreUsers
     throw UnimplementedError();
+  }
+
+  @override
+  Stream<User> authorize() async* {
+    try {
+      const authorizationEndPoint =
+          "http://127.0.0.1:8080/oauth/v1/authorize?scopes='all'&client_id='aksldlkdnasdalkn'&redirect_url='kdalskdna'";
+      const tokenEndPoint = "http://127.0.0.1:8080/oauth/v1/token";
+      final client = http.Client();
+      final authorizationRequest = http.Request(
+        'GET',
+        Uri.parse(authorizationEndPoint),
+      );
+      authorizationRequest.followRedirects = false;
+      final authorizationResponse = await client.send(authorizationRequest);
+      if (authorizationResponse.statusCode == HttpStatus.found) {
+        await launchUrl(Uri.parse(authorizationEndPoint));
+        return;
+      }
+      final authorizeBodyBytes =
+          await http.ByteStream(authorizationResponse.stream).toBytes();
+      final authorizeResponse = utf8.decode(authorizeBodyBytes);
+      final body = jsonEncode({
+        'redirect_url': 'String',
+        'scopes': 'String',
+        'client_id': 'String',
+        'client_secret': 'String',
+        'token': authorizeResponse,
+      });
+      final tokenRequest = http.Request(
+        "POST",
+        Uri.parse(tokenEndPoint),
+      );
+      tokenRequest.followRedirects = false;
+      tokenRequest.body = body;
+      tokenRequest.headers['Content-Type'] = 'application/json';
+      final tokenBodyByte =
+          await http.ByteStream(authorizationResponse.stream).bytesToString();
+      Map<String, dynamic> tokenResponse = json.decode(tokenBodyByte);
+      print(tokenResponse);
+      yield User.fromMap(tokenResponse);
+    } on HttpException catch (e) {
+      throw e.message;
+    } catch (e) {
+      rethrow;
+    }
   }
 }

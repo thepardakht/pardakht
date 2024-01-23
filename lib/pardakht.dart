@@ -20,7 +20,11 @@ class PardakhtDataProvider extends StatelessWidget {
       value: gateway,
       child: MultiBlocProvider(
         providers: [
-          BlocProvider(create: (c) => AuthBloc()),
+          BlocProvider(
+            create: (c) => AuthBloc(
+              pardakhtGateway: c.read<PardakhtGateway>(),
+            ),
+          ),
           BlocProvider(
             create: (c) => UserBloc(
               gateway: c.read<PardakhtGateway>(),
