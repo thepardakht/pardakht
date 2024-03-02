@@ -73,7 +73,10 @@ abstract class AppRoutes {
   static final List<GoRoute> routes = <GoRoute>[
     GoRoute(
       path: ScreenAuthentication.path,
-      builder: (_, __) => const ScreenAuthentication(),
+      builder: (_, state) {
+        final token = state.uri.queryParameters['token'];
+        return ScreenAuthentication(token: token);
+      },
     ),
     GoRoute(
       path: ScreenHome.path,

@@ -1,7 +1,7 @@
 import '../domain/enums/user_role.dart';
 import 'dart:async';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'interfaces/pardakht_gateway.dart';
+import 'repositories/pardakht_gateway.dart';
 import '../domain/entities/user.dart';
 import 'states/user_state.dart';
 import 'states/auth_state.dart';
@@ -9,9 +9,9 @@ import 'auth_bloc.dart';
 
 class UserBloc extends Cubit<UserState> {
   StreamSubscription<AuthState>? _authSub;
-  final PardakhtGateway _gateway;
+  final PardakhtRepository _gateway;
   UserBloc({
-    required PardakhtGateway gateway,
+    required PardakhtRepository gateway,
     required AuthBloc authBloc,
   })  : _gateway = gateway,
         super(const UserState.init()) {
@@ -71,32 +71,11 @@ class UserBloc extends Cubit<UserState> {
     try {
       emit(state.fetchingState());
       await _userSub?.cancel();
-      _userSub = _gateway.fetchUser(id).listen((user) {
+      _userSub = _gateway.fetchCurrentUser().listen((user) {
         emit(state.fetchedState(user: user));
       }, onError: (err) => emit(state.failedFetchState('$err')));
     } catch (err) {
       emit(state.failedCreateState('$err'));
-    }
-  }
-
-  void modifyUser() async {
-    try {
-      emit(state.modifyingState());
-      _gateway.modifyUser(state.user);
-      emit(state.modifiedState(state.user));
-    } catch (err) {
-      emit(state.failedModifyState('$err'));
-    }
-  }
-
-  void deleteUser() async {
-    if (state.user.id == null) return;
-    try {
-      emit(state.deletingState());
-      _gateway.modifyUser(state.user);
-      emit(state.deletedState());
-    } catch (err) {
-      emit(state.failedDeleteState('$err'));
     }
   }
 

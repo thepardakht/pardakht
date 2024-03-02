@@ -8,21 +8,13 @@ enum AuthStateStatus {
   streamed,
   failedStream,
 
-  authorizing,
-  authorize,
-  failedAuthorize,
+  connecting,
+  connected,
+  failedConnect,
 
   signingOut,
   signedOut,
   failedSignout,
-
-  changingEmail,
-  changedEmail,
-  failedChangeEmail,
-
-  changingPass,
-  changedPass,
-  failedChangePass,
 
   updating,
   updated,
@@ -32,15 +24,17 @@ enum AuthStateStatus {
   deleted,
   failedDelete,
 
-  resetingPass,
-  resettedPass,
-  confirmingPassReset,
-  confirmedPassReset,
-  failedPassReset,
+  creatingUser,
+  createdUser,
+  failCreateUser,
 
-  registeringUser,
-  registeredUser,
-  failedRegisterUser,
+  creatingUserContact,
+  createdUserContact,
+  faildCreateUserContact,
+
+  creatingUserLocation,
+  createdUserLocation,
+  faildCreateUserLocation,
 }
 
 extension AuthStateStatusParser on AuthStateStatus {
@@ -51,21 +45,28 @@ extension AuthStateStatusParser on AuthStateStatus {
   bool get isStreamed => this == AuthStateStatus.streamed;
   bool get isFailedStream => this == AuthStateStatus.failedStream;
 
-  bool get isAuthorizing => this == AuthStateStatus.authorizing;
-  bool get isAuthorize => this == AuthStateStatus.authorize;
-  bool get isFailedAuthorize => this == AuthStateStatus.failedAuthorize;
+  bool get isConnecting => this == AuthStateStatus.connecting;
+  bool get isConnected => this == AuthStateStatus.connected;
+  bool get isFailedConnect => this == AuthStateStatus.failedConnect;
 
   bool get isSigningOut => this == AuthStateStatus.signingOut;
   bool get isSignedOut => this == AuthStateStatus.signedOut;
   bool get isFailedSignout => this == AuthStateStatus.failedSignout;
 
-  bool get isChangingEmail => this == AuthStateStatus.changingEmail;
-  bool get isChangedEmail => this == AuthStateStatus.changedEmail;
-  bool get isFailedChangeEmail => this == AuthStateStatus.failedChangeEmail;
+  bool get isCreatingUser => this == AuthStateStatus.creatingUser;
+  bool get isCreatedUser => this == AuthStateStatus.createdUser;
+  bool get isFailedCreateUser => this == AuthStateStatus.failCreateUser;
 
-  bool get isChangingPass => this == AuthStateStatus.changingPass;
-  bool get isChangedPass => this == AuthStateStatus.changedPass;
-  bool get isFailedChangePass => this == AuthStateStatus.failedChangePass;
+  bool get isCreatedUserContact => this == AuthStateStatus.createdUserContact;
+  bool get isCreatingUserContact => this == AuthStateStatus.creatingUserContact;
+  bool get isFailedCreateUserContact =>
+      this == AuthStateStatus.faildCreateUserContact;
+
+  bool get isCreatedUserLocation => this == AuthStateStatus.createdUserLocation;
+  bool get isCreatingUserLocation =>
+      this == AuthStateStatus.creatingUserLocation;
+  bool get isFailedCreateUserLocation =>
+      this == AuthStateStatus.faildCreateUserLocation;
 
   bool get isUpdating => this == AuthStateStatus.updating;
   bool get isUpdated => this == AuthStateStatus.updated;
@@ -75,69 +76,40 @@ extension AuthStateStatusParser on AuthStateStatus {
   bool get isDeleted => this == AuthStateStatus.deleted;
   bool get isFailedDelete => this == AuthStateStatus.failedDelete;
 
-  bool get isResetingPass => this == AuthStateStatus.resetingPass;
-  bool get isResettedPass => this == AuthStateStatus.resettedPass;
-  bool get isConfirmingPassReset => this == AuthStateStatus.confirmingPassReset;
-  bool get isConfirmedPassReset => this == AuthStateStatus.confirmedPassReset;
-  bool get isFailedPassReset => this == AuthStateStatus.failedPassReset;
-
-  bool get isRegisteringUser => this == AuthStateStatus.registeringUser;
-  bool get isRegisteredUser => this == AuthStateStatus.registeredUser;
-  bool get isFailedRegisterUser => this == AuthStateStatus.failedRegisterUser;
-
   bool get isLoading {
     if (isStreaming) return true;
-
-    if (isAuthorizing) return true;
+    if (isConnecting) return true;
+    if (isCreatingUser) return true;
+    if (isCreatingUserContact) return true;
+    if (isCreatingUserLocation) return true;
     if (isSigningOut) return true;
-    if (isChangingEmail) return true;
-    if (isChangingPass) return true;
     if (isUpdating) return true;
     if (isDeleting) return true;
-    if (isResetingPass) return true;
-    if (isConfirmingPassReset) return true;
-    if (isRegisteringUser) return true;
-    return false;
-  }
 
-  bool get isLoadingGlobally {
-    if (isStreaming) return true;
-
-    if (isAuthorizing) return true;
-    if (isSignedOut) return true;
-    if (isDeleting) return true;
-    if (isResetingPass) return true;
-    if (isConfirmingPassReset) return true;
     return false;
   }
 
   bool get isSuccess {
     if (isStreamed) return true;
-
-    if (isAuthorize) return true;
+    if (isConnected) return true;
+    if (isCreatedUser) return true;
+    if (isCreatedUserContact) return true;
+    if (isCreatedUserLocation) return true;
     if (isSignedOut) return true;
-    if (isChangedEmail) return true;
-    if (isChangedPass) return true;
     if (isUpdated) return true;
     if (isDeleted) return true;
-    if (isResettedPass) return true;
-    if (isConfirmedPassReset) return true;
-    if (isRegisteredUser) return true;
     return false;
   }
 
   bool get isFailure {
     if (isFailedStream) return true;
-
-    if (isFailedAuthorize) return true;
+    if (isFailedConnect) return true;
+    if (isFailedCreateUser) return true;
+    if (isFailedCreateUserLocation) return true;
+    if (isFailedCreateUserContact) return true;
     if (isFailedSignout) return true;
-    if (isFailedChangeEmail) return true;
-    if (isFailedChangePass) return true;
     if (isFailedUpdate) return true;
     if (isFailedDelete) return true;
-    if (isFailedPassReset) return true;
-    if (isFailedRegisterUser) return true;
-    if (isRegisteredUser) return true;
     return false;
   }
 
@@ -157,20 +129,20 @@ extension AuthStateStatusParser on AuthStateStatus {
 class AuthState {
   final AuthStateStatus status;
   final String? error;
-  final bool? isAuthorized;
+  final bool? isConnected;
   final User user;
 
   const AuthState({
     required this.status,
     required this.error,
-    required this.isAuthorized,
+    required this.isConnected,
     required this.user,
   });
 
   const AuthState.init({
     this.status = AuthStateStatus.idle,
     this.error,
-    this.isAuthorized,
+    this.isConnected,
     this.user = const User.init(),
   });
 
@@ -183,7 +155,7 @@ class AuthState {
     return AuthState(
       status: status ?? this.status,
       error: error ?? this.error,
-      isAuthorized: isAuthorized ?? isAuthorized,
+      isConnected: isAuthorized ?? isAuthorized,
       user: user ?? this.user,
     );
   }
@@ -198,12 +170,12 @@ class AuthState {
 
   AuthState successState(
     AuthStateStatus status, {
-    bool? isAuthorized,
+    bool? isConnected,
     User? user,
   }) {
     return copyWith(
       status: status,
-      isAuthorized: isAuthorized ?? isAuthorized,
+      isAuthorized: isConnected ?? this.isConnected,
       user: user ?? this.user,
     );
   }

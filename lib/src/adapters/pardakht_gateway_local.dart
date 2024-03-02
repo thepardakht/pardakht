@@ -1,17 +1,23 @@
 import 'package:kooza_flutter/kooza_flutter.dart';
 
 import '../domain/entities/user.dart';
-import '../blocs/interfaces/pardakht_gateway.dart';
+import '../blocs/repositories/pardakht_gateway.dart';
 
-class PardakhtGatewayLocal implements PardakhtGateway {
+class PardakhtGatewayLocal implements PardakhtRepository {
   // static const String _usersRepo = 'users';
 
   final Kooza _prefs;
   PardakhtGatewayLocal(Kooza prefs) : _prefs = prefs;
 
   @override
-  Future<void> backUpUsers(request) {
-    // TODO: implement backUpUsers
+  Future<void> authorize() {
+    // TODO: implement authorize
+    throw UnimplementedError();
+  }
+
+  @override
+  Future<void> connectUser(User user) {
+    // TODO: implement connectUser
     throw UnimplementedError();
   }
 
@@ -22,56 +28,26 @@ class PardakhtGatewayLocal implements PardakhtGateway {
   }
 
   @override
-  Future<void> deleteAllUsers() {
-    // TODO: implement deleteAllUsers
+  Stream<User> fetchCurrentUser() {
+    // TODO: implement fetchCurrentUser
     throw UnimplementedError();
   }
 
   @override
-  Future<void> deleteUser(String userID) {
-    // TODO: implement deleteUser
+  Stream<void> getToken() {
+    // TODO: implement getToken
     throw UnimplementedError();
   }
 
   @override
-  Future<void> deleteUsers(List<String> usersIDs) {
-    // TODO: implement deleteUsers
+  Future<void> sendEmailVerificationCode() {
+    // TODO: implement sendEmailVerificationCode
     throw UnimplementedError();
   }
 
   @override
-  Stream<User> fetchUser(String userID) {
-    // TODO: implement fetchUser
-    throw UnimplementedError();
-  }
-
-  @override
-  Stream<List<User>> fetchUsers(request) {
-    // TODO: implement fetchUsers
-    throw UnimplementedError();
-  }
-
-  @override
-  Future<void> modifyUser(User user) {
-    // TODO: implement modifyUser
-    throw UnimplementedError();
-  }
-
-  @override
-  Future<void> modifyUsers(List<User> users) {
-    // TODO: implement modifyUsers
-    throw UnimplementedError();
-  }
-
-  @override
-  Future<List<User>> restoreUsers(request) {
-    // TODO: implement restoreUsers
-    throw UnimplementedError();
-  }
-
-  @override
-  Stream<User> authorize() {
-    // TODO: implement authorize
+  Future<void> verifyEmailVerificationCode(String code) {
+    // TODO: implement verifyEmailVerificationCode
     throw UnimplementedError();
   }
 }

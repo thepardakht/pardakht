@@ -10,7 +10,7 @@ class ButtonAuthentication extends StatelessWidget {
   Widget build(BuildContext context) {
     return ElevatedButton(
       onPressed: () {
-        context.read<AuthBloc>().authorize();
+        // context.read<AuthBloc>().authorize();
       },
       child: const Text("authentication.button").tr(),
     );

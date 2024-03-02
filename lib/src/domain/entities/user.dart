@@ -2,29 +2,30 @@ import '../enums/user_role.dart';
 
 class User {
   final String? id;
+  final String? username;
   final String? name;
   final String? email;
   final String? password;
-  final UserRole role;
 
   const User({
     required this.id,
+    required this.username,
     required this.name,
     required this.email,
     required this.password,
-    required this.role,
   });
 
   const User.init({
     this.id,
+    this.username,
     this.name,
     this.email,
     this.password,
-    this.role = UserRole.admin,
   });
 
   User copyWith({
     String? id,
+    String? username,
     String? name,
     String? email,
     String? password,
@@ -32,20 +33,20 @@ class User {
   }) {
     return User(
       id: id ?? this.id,
+      username: username ?? this.username,
       name: name ?? this.name,
       email: email ?? this.email,
       password: password ?? this.password,
-      role: role ?? this.role,
     );
   }
 
-  Map<String, dynamic> toMap(bool isFirestore) {
+  Map<String, dynamic> toMap() {
     var json = <String, dynamic>{
       'id': id,
+      'username': username,
       'name': name,
       'email': email,
       'password': password,
-      'role': role.name,
     };
     json.removeWhere((key, value) => value == null);
     return json;
@@ -55,10 +56,10 @@ class User {
     if (json == null) return const User.init();
     return User(
       id: id ?? json['id'],
+      username: json['username'],
       name: json['name'],
       email: json['email'],
       password: json['password'],
-      role: UserRoleParser.fromName(json['role']),
     );
   }
   static List<User> listFromMaps(List? list) {

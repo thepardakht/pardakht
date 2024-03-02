@@ -2,11 +2,11 @@ import 'src/blocs/user_bloc.dart';
 import 'src/blocs/users_bloc.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'src/blocs/interfaces/pardakht_gateway.dart';
+import 'src/blocs/repositories/pardakht_gateway.dart';
 import 'src/blocs/auth_bloc.dart';
 
 class PardakhtDataProvider extends StatelessWidget {
-  final PardakhtGateway gateway;
+  final PardakhtRepository gateway;
   final Widget child;
   const PardakhtDataProvider({
     super.key,
@@ -22,18 +22,18 @@ class PardakhtDataProvider extends StatelessWidget {
         providers: [
           BlocProvider(
             create: (c) => AuthBloc(
-              pardakhtGateway: c.read<PardakhtGateway>(),
+              pardakhtGateway: c.read<PardakhtRepository>(),
             ),
           ),
           BlocProvider(
             create: (c) => UserBloc(
-              gateway: c.read<PardakhtGateway>(),
+              gateway: c.read<PardakhtRepository>(),
               authBloc: c.read<AuthBloc>(),
             ),
           ),
           BlocProvider(
             create: (c) => UsersBloc(
-              gateway: c.read<PardakhtGateway>(),
+              gateway: c.read<PardakhtRepository>(),
               authBloc: c.read<AuthBloc>(),
             ),
           ),

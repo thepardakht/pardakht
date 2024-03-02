@@ -1,45 +1,84 @@
-import 'dart:convert';
-import 'dart:io';
+import 'dart:async';
 
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:pardakht/src/blocs/interfaces/pardakht_gateway.dart';
+import 'package:pardakht/src/blocs/repositories/pardakht_gateway.dart';
 import 'package:pardakht/src/domain/entities/user.dart';
-import 'package:url_launcher/url_launcher.dart';
 
 import 'states/auth_state.dart';
-import 'package:http/http.dart' as http;
 
 class AuthBloc extends Cubit<AuthState> {
-  final PardakhtGateway _gateway;
-  AuthBloc({required PardakhtGateway pardakhtGateway})
+  final PardakhtRepository _gateway;
+  AuthBloc({required PardakhtRepository pardakhtGateway})
       : _gateway = pardakhtGateway,
         super(const AuthState.init());
 
-  void signInWithEmail() {}
+  void toInitState() {
+    emit(const AuthState.init());
+  }
 
-  void signinWithPhone() {}
+  void toIdleState() {
+    emit(state.idleState());
+  }
 
-  void signInWithFacebook() {}
+  void setLoginIdentification(String? value) {
+    if (value == null) return;
+    final RegExp emailRegex = RegExp(
+      r'^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$',
+    );
+    if (emailRegex.hasMatch(value)) {
+      final user = state.user.copyWith(email: value);
+      emit(state.copyWith(user: user));
+    } else {
+      final user = state.user.copyWith(username: value);
+      emit(state.copyWith(user: user));
+    }
+  }
 
-  void signinWithGoogle() {}
+  void setUserPassword(String? value) {
+    if (value == null) return;
+    final user = state.user.copyWith(password: value);
+    emit(state.copyWith(user: user));
+  }
 
-  void signinWithApple() {}
-
-  void fetch() {}
-
-  Future<void> authorize() async {
-    emit(state.loadingState(AuthStateStatus.authorizing));
-    try {
-      _gateway.authorize().listen((user) {
-        emit(
-          state.successState(
-            AuthStateStatus.authorize,
-            user: user,
+  void signInWithEmail() {
+    emit(state.loadingState(AuthStateStatus.connecting));
+    _gateway
+        .connectUser(state.user)
+        .then(
+          (value) => emit(
+            state.successState(AuthStateStatus.connected),
+          ),
+        )
+        .onError(
+          (error, stackTrace) => emit(
+            state.failureState(AuthStateStatus.failedConnect, error: error),
           ),
         );
-      });
-    } catch (error) {
-      emit(state.failureState(AuthStateStatus.failedAuthorize, error: error));
+  }
+
+  StreamSubscription<User>? _authSub;
+  void fetchUser(String? id) async {
+    if (id == null) return;
+    try {
+      emit(state.loadingState(AuthStateStatus.streaming));
+      await _authSub?.cancel();
+      _authSub = _gateway.fetchCurrentUser().listen((user) {
+        emit(
+          state.successState(AuthStateStatus.streamed,
+              user: state.user, isConnected: true),
+        );
+      },
+          onError: (err) => emit(state
+              .failureState(AuthStateStatus.failedStream, error: ('$err'))));
+    } catch (err) {
+      emit(state.failureState(AuthStateStatus.failedStream, error: ('$err')));
     }
+  }
+
+  @override
+  Future<void> close() async {
+    await _authSub?.cancel();
+
+    return super.close();
   }
 }

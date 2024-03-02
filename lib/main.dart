@@ -1,3 +1,4 @@
+import 'package:url_strategy/url_strategy.dart';
 import 'package:device_preview/device_preview.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/foundation.dart';
@@ -6,37 +7,33 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:kooza_flutter/kooza_flutter.dart';
 import 'package:pardakht/src/adapters/pardakht_gateway_cloud.dart';
 import 'package:pardakht/src/blocs/auth_bloc.dart';
-import 'package:pardakht/src/blocs/interfaces/pardakht_gateway.dart';
+
 import 'package:pardakht/src/blocs/states/auth_state.dart';
 import 'package:pardakht/theme.dart';
 
 import 'app_router.dart';
 import 'pardakht.dart';
-import 'src/adapters/pardakht_gateway_local.dart';
 
 void main() async {
+  setPathUrlStrategy();
   WidgetsFlutterBinding.ensureInitialized();
   await EasyLocalization.ensureInitialized();
   final prefs = await Kooza.getInstance("pardakht_local");
-  final gateway = PardakhtGatewayCloud();
+  final gateway = PardakhtGatewayCloud("http://127.0.0.1:8080");
 
   runApp(
-    DevicePreview(
-        enabled: !kReleaseMode,
-        builder: (context) {
-          return EasyLocalization(
-            supportedLocales: const [
-              Locale("en", "US"),
-              Locale("fa", "AF"),
-            ],
-            path: 'assets/locale',
-            fallbackLocale: const Locale("en", "US"),
-            child: PardakhtDataProvider(
-              gateway: gateway,
-              child: const AppGeneralSetup(),
-            ),
-          );
-        }),
+    EasyLocalization(
+      supportedLocales: const [
+        Locale("en", "US"),
+        Locale("fa", "AF"),
+      ],
+      path: 'assets/locale',
+      fallbackLocale: const Locale("en", "US"),
+      child: PardakhtDataProvider(
+        gateway: gateway,
+        child: const AppGeneralSetup(),
+      ),
+    ),
   );
 }
 
@@ -50,11 +47,11 @@ class AppGeneralSetup extends StatelessWidget {
     );
     return BlocBuilder<AuthBloc, AuthState>(
       buildWhen: (previous, current) {
-        return previous.isAuthorized != current.isAuthorized;
+        return previous.isConnected != current.isConnected;
       },
       builder: (context, state) {
         final router = AppRouter.build(
-          isSignedIn: state.isAuthorized ?? false,
+          isSignedIn: state.isConnected ?? false,
           routes: AppRoutes.routes,
           paths: AppRoutes.paths,
           publicPaths: AppRoutes.publicPaths,

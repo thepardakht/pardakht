@@ -1,17 +1,40 @@
 import 'dart:convert';
 import 'dart:io';
 
-import 'package:pardakht/src/blocs/interfaces/pardakht_gateway.dart';
+import 'package:pardakht/src/blocs/repositories/pardakht_gateway.dart';
 import 'package:pardakht/src/domain/entities/user.dart';
 
 import 'package:http/http.dart' as http;
-import 'package:url_launcher/url_launcher.dart';
 
-class PardakhtGatewayCloud implements PardakhtGateway {
+class PardakhtGatewayCloud implements PardakhtRepository {
+  final String url;
+  PardakhtGatewayCloud(this.url);
+
+  final _client = http.Client();
+
   @override
-  Future<void> backUpUsers(request) {
-    // TODO: implement backUpUsers
-    throw UnimplementedError();
+  Future<void> connectUser(User user) async {
+    final fetchCurrentUserUrl = Uri.parse("$url/connect_wallet");
+    try {
+      final json = jsonEncode(user.toMap());
+      await _client
+          .post(
+        fetchCurrentUserUrl,
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: json,
+      )
+          .then((value) {
+        if (value.statusCode != 200) {
+          throw 'Request Faild! Try again ${value.statusCode}';
+        }
+      });
+    } on HttpException catch (e) {
+      throw 'Request Faild! ${e.message}';
+    } catch (e) {
+      throw 'Faild Connecting User! $e';
+    }
   }
 
   @override
@@ -21,96 +44,45 @@ class PardakhtGatewayCloud implements PardakhtGateway {
   }
 
   @override
-  Future<void> deleteAllUsers() {
-    // TODO: implement deleteAllUsers
-    throw UnimplementedError();
-  }
-
-  @override
-  Future<void> deleteUser(String userID) {
-    // TODO: implement deleteUser
-    throw UnimplementedError();
-  }
-
-  @override
-  Future<void> deleteUsers(List<String> usersIDs) {
-    // TODO: implement deleteUsers
-    throw UnimplementedError();
-  }
-
-  @override
-  Stream<User> fetchUser(String userID) {
-    // TODO: implement fetchUser
-    throw UnimplementedError();
-  }
-
-  @override
-  Stream<List<User>> fetchUsers(request) {
-    // TODO: implement fetchUsers
-    throw UnimplementedError();
-  }
-
-  @override
-  Future<void> modifyUser(User user) {
-    // TODO: implement modifyUser
-    throw UnimplementedError();
-  }
-
-  @override
-  Future<void> modifyUsers(List<User> users) {
-    // TODO: implement modifyUsers
-    throw UnimplementedError();
-  }
-
-  @override
-  Future<List<User>> restoreUsers(request) {
-    // TODO: implement restoreUsers
-    throw UnimplementedError();
-  }
-
-  @override
-  Stream<User> authorize() async* {
+  Stream<User> fetchCurrentUser() async* {
+    final requestUrl = Uri.parse("$url/user/");
     try {
-      const authorizationEndPoint =
-          "http://127.0.0.1:8080/oauth/v1/authorize?scopes='all'&client_id='aksldlkdnasdalkn'&redirect_url='kdalskdna'";
-      const tokenEndPoint = "http://127.0.0.1:8080/oauth/v1/token";
-      final client = http.Client();
-      final authorizationRequest = http.Request(
-        'GET',
-        Uri.parse(authorizationEndPoint),
+      final users = await _client.get(
+        requestUrl,
+        headers: {
+          "Content-Type": "application/json",
+        },
       );
-      authorizationRequest.followRedirects = false;
-      final authorizationResponse = await client.send(authorizationRequest);
-      if (authorizationResponse.statusCode == HttpStatus.found) {
-        await launchUrl(Uri.parse(authorizationEndPoint));
-        return;
-      }
-      final authorizeBodyBytes =
-          await http.ByteStream(authorizationResponse.stream).toBytes();
-      final authorizeResponse = utf8.decode(authorizeBodyBytes);
-      final body = jsonEncode({
-        'redirect_url': 'String',
-        'scopes': 'String',
-        'client_id': 'String',
-        'client_secret': 'String',
-        'token': authorizeResponse,
-      });
-      final tokenRequest = http.Request(
-        "POST",
-        Uri.parse(tokenEndPoint),
-      );
-      tokenRequest.followRedirects = false;
-      tokenRequest.body = body;
-      tokenRequest.headers['Content-Type'] = 'application/json';
-      final tokenBodyByte =
-          await http.ByteStream(authorizationResponse.stream).bytesToString();
-      Map<String, dynamic> tokenResponse = json.decode(tokenBodyByte);
-      print(tokenResponse);
-      yield User.fromMap(tokenResponse);
+      final json = jsonDecode(users.body);
+      yield User.fromMap(json);
     } on HttpException catch (e) {
-      throw e.message;
+      throw 'Request Faild! ${e.message}';
     } catch (e) {
-      rethrow;
+      throw 'Faild Fecthing Current User Data! $e';
+    }
+  }
+
+  @override
+  Future<void> sendEmailVerificationCode() async {
+    final requestUrl = Uri.parse("$url/user/email_verification_code");
+    try {
+      await _client.post(requestUrl);
+    } on HttpException catch (e) {
+      throw 'Request Faild! ${e.message}';
+    } catch (e) {
+      throw 'Faild Sending Verification code! $e';
+    }
+  }
+
+  @override
+  Future<void> verifyEmailVerificationCode(String code) async {
+    final requestUrl = Uri.parse("$url/user/verify_email?code=$code");
+    try {
+      await _client.post(requestUrl);
+    } on HttpException catch (e) {
+      throw 'Request Faild! ${e.message}';
+    } catch (e) {
+      throw 'Faild Verifying Email! $e';
     }
   }
 }
