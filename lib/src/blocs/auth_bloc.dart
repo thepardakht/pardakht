@@ -2,7 +2,6 @@ import 'dart:async';
 
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:pardakht/src/blocs/repositories/pardakht_gateway.dart';
-import 'package:pardakht/src/domain/entities/user.dart';
 
 import 'states/auth_state.dart';
 
@@ -10,7 +9,9 @@ class AuthBloc extends Cubit<AuthState> {
   final PardakhtRepository _gateway;
   AuthBloc({required PardakhtRepository pardakhtGateway})
       : _gateway = pardakhtGateway,
-        super(const AuthState.init());
+        super(const AuthState.init()) {
+    fetchCurrenAccount();
+  }
 
   void toInitState() {
     emit(const AuthState.init());
@@ -42,43 +43,73 @@ class AuthBloc extends Cubit<AuthState> {
 
   void signInWithEmail() {
     emit(state.loadingState(AuthStateStatus.connecting));
+    _gateway.connectUser(state.user).then(
+      (value) {
+        final user = state.user.copyWith(id: value);
+        emit(state.copyWith(user: user));
+        _gateway.sendEmailVerificationCode(value);
+        return emit(state.successState(AuthStateStatus.connected));
+      },
+    ).onError(
+      (error, stackTrace) => emit(
+        state.failureState(AuthStateStatus.failedConnect, error: error),
+      ),
+    );
+  }
+
+  void sendEmailVerificationCode(String userId) {
+    emit(state.loadingState(AuthStateStatus.sendingEmailVerifactionCode));
     _gateway
-        .connectUser(state.user)
+        .sendEmailVerificationCode(userId)
         .then(
           (value) => emit(
-            state.successState(AuthStateStatus.connected),
-          ),
+              state.successState(AuthStateStatus.sendEmailVerificationCode)),
+        )
+        .onError((error, stackTrace) => emit(
+              state.failureState(
+                AuthStateStatus.failSendEmailVerificationCode,
+                error: '$error',
+              ),
+            ));
+  }
+
+  void verifyEmail(String userId, String code) {
+    emit(state.loadingState(AuthStateStatus.verifyingEmail));
+
+    _gateway
+        .verifyEmailVerificationCode(userId, code)
+        .then(
+          (value) {
+            return emit(state.successState(AuthStateStatus.verifiedEmail,
+                token: value));
+          },
         )
         .onError(
           (error, stackTrace) => emit(
-            state.failureState(AuthStateStatus.failedConnect, error: error),
+            state.failureState(
+              AuthStateStatus.faildVerifyEmail,
+              error: '$error',
+            ),
           ),
-        );
+        )
+        .then((value) => fetchCurrenAccount());
   }
 
-  StreamSubscription<User>? _authSub;
-  void fetchUser(String? id) async {
-    if (id == null) return;
-    try {
-      emit(state.loadingState(AuthStateStatus.streaming));
-      await _authSub?.cancel();
-      _authSub = _gateway.fetchCurrentUser().listen((user) {
-        emit(
-          state.successState(AuthStateStatus.streamed,
-              user: state.user, isConnected: true),
-        );
-      },
-          onError: (err) => emit(state
-              .failureState(AuthStateStatus.failedStream, error: ('$err'))));
-    } catch (err) {
+  StreamSubscription<void>? _accountSub;
+  void fetchCurrenAccount() async {
+    _accountSub = _gateway.fetchCurrentUser().listen((event) {
+      if (event.id != null) {
+        emit(state.successState(AuthStateStatus.streamed,
+            user: event, isConnected: true));
+      }
+    }, onError: (err) {
       emit(state.failureState(AuthStateStatus.failedStream, error: ('$err')));
-    }
+    });
   }
 
   @override
   Future<void> close() async {
-    await _authSub?.cancel();
-
+    await _accountSub?.cancel();
     return super.close();
   }
 }

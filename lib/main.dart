@@ -1,10 +1,12 @@
+import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:url_strategy/url_strategy.dart';
 import 'package:device_preview/device_preview.dart';
 import 'package:easy_localization/easy_localization.dart';
-import 'package:flutter/foundation.dart';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:kooza_flutter/kooza_flutter.dart';
+
 import 'package:pardakht/src/adapters/pardakht_gateway_cloud.dart';
 import 'package:pardakht/src/blocs/auth_bloc.dart';
 
@@ -16,10 +18,15 @@ import 'pardakht.dart';
 
 void main() async {
   setPathUrlStrategy();
+  final kooza = await Kooza.getInstance("Pardakht");
   WidgetsFlutterBinding.ensureInitialized();
   await EasyLocalization.ensureInitialized();
-  final prefs = await Kooza.getInstance("pardakht_local");
-  final gateway = PardakhtGatewayCloud("http://127.0.0.1:8080");
+  const storage = FlutterSecureStorage();
+  final gateway = PardakhtGatewayCloud(
+    prefs: kooza,
+    url: "http://127.0.0.1:8080",
+    localStorage: storage,
+  );
 
   runApp(
     EasyLocalization(
@@ -31,7 +38,11 @@ void main() async {
       fallbackLocale: const Locale("en", "US"),
       child: PardakhtDataProvider(
         gateway: gateway,
-        child: const AppGeneralSetup(),
+        child: DevicePreview(
+          builder: (context) {
+            return const AppGeneralSetup();
+          },
+        ),
       ),
     ),
   );
@@ -50,6 +61,9 @@ class AppGeneralSetup extends StatelessWidget {
         return previous.isConnected != current.isConnected;
       },
       builder: (context, state) {
+        if (state.error != null) {
+          print("ERROR: ${state.error}");
+        }
         final router = AppRouter.build(
           isSignedIn: state.isConnected ?? false,
           routes: AppRoutes.routes,

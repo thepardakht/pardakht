@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:pardakht/src/blocs/auth_bloc.dart';
+import 'package:pardakht/src/views/components/eleveted_button.dart';
 import 'package:pardakht/src/views/components/text_form_field.dart';
 
 class FormConnectWallet extends StatelessWidget {
@@ -32,9 +33,10 @@ class FormConnectWallet extends StatelessWidget {
       label: "Password",
       onSaved: context.read<AuthBloc>().setUserPassword,
     );
-    final submitButton = ElevatedButton(
-        onPressed: () => _submitHandler(context),
-        child: const Text("Connect Wallet"));
+    final submitButton = AppElevetedButton(
+      onPressed: () => _submitHandler(context),
+      text: "Connect Wallet",
+    );
     return Container(
       padding: const EdgeInsets.all(10),
       height: 300,

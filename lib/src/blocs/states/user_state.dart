@@ -1,5 +1,4 @@
 import '../../domain/entities/user.dart';
-import '../../domain/entities/user.dart';
 
 enum UserStateStatus {
   idle,

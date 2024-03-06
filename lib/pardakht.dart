@@ -1,3 +1,5 @@
+import 'package:pardakht/src/blocs/verification_bloc.dart';
+
 import 'src/blocs/user_bloc.dart';
 import 'src/blocs/users_bloc.dart';
 import 'package:flutter/material.dart';
@@ -35,6 +37,12 @@ class PardakhtDataProvider extends StatelessWidget {
             create: (c) => UsersBloc(
               gateway: c.read<PardakhtRepository>(),
               authBloc: c.read<AuthBloc>(),
+            ),
+          ),
+          BlocProvider(
+            create: (c) => VerificationBloc(
+              authState: c.read<AuthBloc>().state,
+              pardakhtGateway: c.read<PardakhtRepository>(),
             ),
           ),
         ],

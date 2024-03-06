@@ -15,8 +15,9 @@ class UserBloc extends Cubit<UserState> {
     required AuthBloc authBloc,
   })  : _gateway = gateway,
         super(const UserState.init()) {
+    _authSub?.cancel();
     _authSub = authBloc.stream.listen((event) {
-      emit(state.fetchedState(currentUser: event.user));
+      return emit(state.fetchedState(currentUser: event.user));
     }, onError: (err) => emit(state.failedFetchState('$err')));
   }
 
@@ -65,24 +66,24 @@ class UserBloc extends Cubit<UserState> {
     }
   }
 
-  StreamSubscription<User>? _userSub;
-  void fetchUser(String? id) async {
-    if (id == null) return;
-    try {
-      emit(state.fetchingState());
-      await _userSub?.cancel();
-      _userSub = _gateway.fetchCurrentUser().listen((user) {
-        emit(state.fetchedState(user: user));
-      }, onError: (err) => emit(state.failedFetchState('$err')));
-    } catch (err) {
-      emit(state.failedCreateState('$err'));
-    }
-  }
+  // StreamSubscription<User>? _userSub;
+  // void fetchUser(String? id) async {
+  //   if (id == null) return;
+  //   try {
+  //     emit(state.fetchingState());
+  //     await _userSub?.cancel();
+  //     _userSub = _gateway.fetchCurrentUser().listen((user) {
+  //       emit(state.fetchedState(user: user));
+  //     }, onError: (err) => emit(state.failedFetchState('$err')));
+  //   } catch (err) {
+  //     emit(state.failedCreateState('$err'));
+  //   }
+  // }
 
   @override
   Future<void> close() async {
     await _authSub?.cancel();
-    await _userSub?.cancel();
+    // await _userSub?.cancel();
     return super.close();
   }
 }

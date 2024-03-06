@@ -35,6 +35,14 @@ enum AuthStateStatus {
   creatingUserLocation,
   createdUserLocation,
   faildCreateUserLocation,
+
+  verifyingEmail,
+  verifiedEmail,
+  faildVerifyEmail,
+
+  sendingEmailVerifactionCode,
+  sendEmailVerificationCode,
+  failSendEmailVerificationCode,
 }
 
 extension AuthStateStatusParser on AuthStateStatus {
@@ -76,6 +84,17 @@ extension AuthStateStatusParser on AuthStateStatus {
   bool get isDeleted => this == AuthStateStatus.deleted;
   bool get isFailedDelete => this == AuthStateStatus.failedDelete;
 
+  bool get isVerifyingEmail => this == AuthStateStatus.verifyingEmail;
+  bool get isVerifiedEmail => this == AuthStateStatus.verifiedEmail;
+  bool get isFaildVerifyEmail => this == AuthStateStatus.faildVerifyEmail;
+
+  bool get isSendingEmailVerifactionCode =>
+      this == AuthStateStatus.sendingEmailVerifactionCode;
+  bool get isSendEmailVerificationCode =>
+      this == AuthStateStatus.sendEmailVerificationCode;
+  bool get isFailSendEmailVerificationCode =>
+      this == AuthStateStatus.failSendEmailVerificationCode;
+
   bool get isLoading {
     if (isStreaming) return true;
     if (isConnecting) return true;
@@ -85,6 +104,8 @@ extension AuthStateStatusParser on AuthStateStatus {
     if (isSigningOut) return true;
     if (isUpdating) return true;
     if (isDeleting) return true;
+    if (isVerifyingEmail) return true;
+    if (isSendingEmailVerifactionCode) return true;
 
     return false;
   }
@@ -98,6 +119,8 @@ extension AuthStateStatusParser on AuthStateStatus {
     if (isSignedOut) return true;
     if (isUpdated) return true;
     if (isDeleted) return true;
+    if (isVerifiedEmail) return true;
+    if (isSendEmailVerificationCode) return true;
     return false;
   }
 
@@ -110,6 +133,8 @@ extension AuthStateStatusParser on AuthStateStatus {
     if (isFailedSignout) return true;
     if (isFailedUpdate) return true;
     if (isFailedDelete) return true;
+    if (isFaildVerifyEmail) return true;
+    if (isFailSendEmailVerificationCode) return true;
     return false;
   }
 
@@ -130,6 +155,7 @@ class AuthState {
   final AuthStateStatus status;
   final String? error;
   final bool? isConnected;
+  final String? token;
   final User user;
 
   const AuthState({
@@ -137,6 +163,7 @@ class AuthState {
     required this.error,
     required this.isConnected,
     required this.user,
+    required this.token,
   });
 
   const AuthState.init({
@@ -144,19 +171,22 @@ class AuthState {
     this.error,
     this.isConnected,
     this.user = const User.init(),
+    this.token,
   });
 
   AuthState copyWith({
     AuthStateStatus? status,
     String? error,
-    bool? isAuthorized,
+    bool? isConnected,
     User? user,
+    String? token,
   }) {
     return AuthState(
       status: status ?? this.status,
       error: error ?? this.error,
-      isConnected: isAuthorized ?? isAuthorized,
+      isConnected: isConnected ?? this.isConnected,
       user: user ?? this.user,
+      token: token ?? this.token,
     );
   }
 
@@ -171,12 +201,14 @@ class AuthState {
   AuthState successState(
     AuthStateStatus status, {
     bool? isConnected,
+    String? token,
     User? user,
   }) {
     return copyWith(
       status: status,
-      isAuthorized: isConnected ?? this.isConnected,
+      isConnected: isConnected ?? this.isConnected,
       user: user ?? this.user,
+      token: token ?? this.token,
     );
   }
 
