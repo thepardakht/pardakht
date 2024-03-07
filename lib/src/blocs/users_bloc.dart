@@ -57,19 +57,21 @@ class UsersBloc extends Cubit<UsersState> {
   //   }
   // }
 
-  // StreamSubscription<List<User>>? _searchSub;
-  // void searchUsers(String? query) async {
-  //   if (query == null || query.isEmpty) return emit(state.idleState());
-  //   try {
-  //     emit(state.searchingState());
-  //     _searchSub?.cancel();
-  //     _searchSub = _gateway.fetchUsers(query).listen((result) {
-  //       emit(state.searchedState(result));
-  //     }, onError: (err) => emit(state.failedFetchState('$err')));
-  //   } catch (err) {
-  //     emit(state.failedFetchState('$err'));
-  //   }
-  // }
+  void searchUsers(String? query) async {
+    if (query == null || query.isEmpty) return emit(state.idleState());
+
+    emit(state.searchingState());
+    _gateway
+        .searchUsers(query)
+        .then(
+          (value) => emit(state.searchedState(value)),
+        )
+        .onError(
+          (error, stackTrace) => emit(
+            state.failedFetchState('$error'),
+          ),
+        );
+  }
 
   // void deleteUser(String id) async {
   //   try {

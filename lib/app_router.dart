@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:pardakht/src/views/screens/screen_auth.dart';
+import 'package:pardakht/src/views/screens/screen_create_transaction.dart';
 import 'package:pardakht/src/views/screens/screen_home.dart';
+import 'package:pardakht/src/views/screens/screen_search.dart';
 
 abstract class AppRouter {
   const AppRouter._();
@@ -82,6 +84,20 @@ abstract class AppRoutes {
       path: ScreenHome.path,
       builder: (_, __) => const ScreenHome(),
     ),
+    GoRoute(
+      path: ScreenSearch.path,
+      builder: (_, state) {
+        final value = state.uri.queryParameters['value'];
+        return ScreenSearch(value: value);
+      },
+    ),
+    GoRoute(
+      path: ScreenCreateTransaction.path,
+      builder: (_, state) {
+        final sendTo = state.uri.queryParameters['sendTo'];
+        return ScreenCreateTransaction(sendTo: sendTo);
+      },
+    ),
   ];
 
   static const List<String> paths = [
@@ -90,6 +106,8 @@ abstract class AppRoutes {
 
   static const List<String> loginPaths = [
     ScreenHome.path,
+    ScreenSearch.path,
+    ScreenCreateTransaction.path,
   ];
 
   static const List<String> publicPaths = [];

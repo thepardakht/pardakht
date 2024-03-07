@@ -82,11 +82,11 @@ class CreditCard extends StatelessWidget {
       child: Row(
         children: [
           Icon(
-            MaterialCommunityIcons.contactless_payment,
+            MaterialCommunityIcons.integrated_circuit_chip,
             color: Colors.amber,
           ),
           Icon(
-            MaterialCommunityIcons.integrated_circuit_chip,
+            MaterialCommunityIcons.contactless_payment,
             color: Colors.tealAccent,
           ),
         ],

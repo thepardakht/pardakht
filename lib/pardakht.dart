@@ -1,4 +1,7 @@
+import 'package:pardakht/src/blocs/transaction_bloc.dart';
+import 'package:pardakht/src/blocs/transactions_bloc.dart';
 import 'package:pardakht/src/blocs/verification_bloc.dart';
+import 'package:pardakht/src/blocs/wallet_bloc.dart';
 
 import 'src/blocs/user_bloc.dart';
 import 'src/blocs/users_bloc.dart';
@@ -43,6 +46,21 @@ class PardakhtDataProvider extends StatelessWidget {
             create: (c) => VerificationBloc(
               authState: c.read<AuthBloc>().state,
               pardakhtGateway: c.read<PardakhtRepository>(),
+            ),
+          ),
+          BlocProvider(
+            create: (c) => WalletBloc(
+              gateway: c.read<PardakhtRepository>(),
+            ),
+          ),
+          BlocProvider(
+            create: (c) => TransactionBloc(
+              gateway: c.read<PardakhtRepository>(),
+            ),
+          ),
+          BlocProvider(
+            create: (c) => TransactionsBloc(
+              gateway: c.read<PardakhtRepository>(),
             ),
           ),
         ],
