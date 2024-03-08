@@ -5,12 +5,12 @@ import 'package:flutter/rendering.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
+import 'package:intl/intl.dart';
 import 'package:pardakht/src/blocs/auth_bloc.dart';
 import 'package:pardakht/src/blocs/states/transactions_state.dart';
 import 'package:pardakht/src/blocs/states/wallet_state.dart';
 import 'package:pardakht/src/blocs/transactions_bloc.dart';
 
-import 'package:pardakht/src/blocs/user_bloc.dart';
 import 'package:pardakht/src/blocs/wallet_bloc.dart';
 import 'package:pardakht/src/views/components/credit_card.dart';
 import 'package:pardakht/src/views/components/expansion_items.dart';
@@ -37,23 +37,49 @@ class ScreenHome extends StatelessWidget {
       builder: (context, state) {
         final transactions = state.transactions;
         final items = transactions.map((transaction) {
-          return ExpansionTile(title: const Text("Send"), children: [
-            ExpansionItems(items: [
-              ExpansionItem(title: "From", subtitle: "Sayed Ali sina Hussain"),
-              ExpansionItem(
-                  child: Container(
-                decoration: BoxDecoration(
-                    color: Colors.green,
-                    borderRadius: BorderRadius.circular(10)),
-                padding:
-                    const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
-                child: const Text("Success"),
-              )),
-            ])
-          ]);
+          return ExpansionTile(
+              leading: CircleAvatar(
+                backgroundImage: NetworkImage(
+                    transaction.destinationAccountProfileUrl ?? ""),
+              ),
+              title: Text(transaction.destinationAccountName ?? ""),
+              subtitle: Text("@${transaction.destinationAccountUsername}"),
+              children: [
+                ExpansionItems(items: [
+                  ExpansionItem(
+                      title: "Message", subtitle: transaction.description),
+                  ExpansionItem(
+                      title: "Type",
+                      subtitle: transaction.transactionType?.name),
+                  ExpansionItem(
+                      title: "Amount", subtitle: "${transaction.amount} \$"),
+                  ExpansionItem(
+                      title: "Date",
+                      subtitle: DateFormat('EEEE, MMMM d, y H:mm a')
+                          .format(transaction.transactionDate!)),
+                  ExpansionItem(
+                      title: "Status",
+                      subtitle: transaction.transactionStatus?.name),
+                  ExpansionItem(title: "From", subtitle: transaction.userId),
+                  ExpansionItem(
+                      title: "To", subtitle: transaction.destinationAccountId),
+                ])
+              ]);
         });
 
         return SliverList(delegate: SliverChildListDelegate(items.toList()));
+      },
+    );
+    final amount = BlocBuilder<WalletBloc, WalletState>(
+      buildWhen: (previous, current) {
+        return previous.wallet.amount != current.wallet.amount;
+      },
+      builder: (context, state) {
+        return Text(
+          "\$ ${state.wallet.amount}",
+          style: theme.textTheme.titleLarge
+              ?.copyWith(color: theme.colorScheme.primary),
+        );
       },
     );
     return Scaffold(
@@ -110,12 +136,12 @@ class ScreenHome extends StatelessWidget {
               ),
               title: Text(currenUserData.name ?? ""),
               subtitle: Text("@${currenUserData.username}"),
-              trailing: const Column(
+              trailing: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text("Total Amount"),
-                  Text("\$ 200,000"),
+                  const Text("Total Amount"),
+                  amount,
                 ],
               ),
             ),

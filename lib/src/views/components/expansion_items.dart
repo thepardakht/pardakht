@@ -1,4 +1,5 @@
 import 'package:flutter/cupertino.dart';
+import 'package:flutter/material.dart';
 
 class ExpansionItem {
   final String? title;
@@ -18,6 +19,7 @@ class ExpansionItems extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
     final list = items.map((e) {
       if (e.child != null) {
         return e.child!;
@@ -25,18 +27,24 @@ class ExpansionItems extends StatelessWidget {
       return Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(e.title ?? ""),
-          Text(e.subtitle ?? ""),
+          Text(
+            e.title ?? "",
+            style: theme.textTheme.titleMedium?.copyWith(color: Colors.grey),
+          ),
+          Text(
+            e.subtitle ?? "",
+            style: theme.textTheme.titleMedium,
+          ),
         ],
       );
     });
     return Padding(
-      padding: const EdgeInsets.only(left: 70, right: 10, bottom: 10),
+      padding: const EdgeInsets.only(left: 60, right: 10, bottom: 10),
       child: Wrap(
-        alignment: WrapAlignment.center,
-        runAlignment: WrapAlignment.center,
-        spacing: 10,
-        runSpacing: 8,
+        alignment: WrapAlignment.start,
+        runAlignment: WrapAlignment.start,
+        spacing: 20,
+        runSpacing: 15,
         children: list.toList(),
       ),
     );

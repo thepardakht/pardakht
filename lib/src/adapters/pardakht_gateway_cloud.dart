@@ -34,12 +34,6 @@ class PardakhtGatewayCloud implements PardakhtRepository {
     // }
     // return token;
 
-    // final doc = await prefs.singleDoc("auth").get();
-    // final token = doc.data as String?;
-    // if (token == null || token.isEmpty) {
-    //   throw 'Token not Found!';
-    // }
-    // return token;
     return "Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJ1c2VyX2lkIjoiOTRkNzgyODEtZGRlYS00ZTVjLThmYjktYTNkMDdhYTRlNjkwIiwiZXhwIjoxNzExNjUyODk2fQ.L9E0T2WknbByqqBw4Vp-ANVwlX_vHDUSeWFDLRigkAQ";
     // return "Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJ1c2VyX2lkIjoiMDY4OWQ3MDItZTYwZS00N2IwLWJmN2UtOTMyOTg4ZGM0ZGFiIiwiZXhwIjoxNzExNjUyMzE2fQ.JaMcEiDFwpJY8iOkUktorfY340BoK9u6oRXcirI0c5g";
   }
